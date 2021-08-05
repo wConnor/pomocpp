@@ -5,4 +5,4 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 project(pomocpp)
-add_executable(pomocpp main.cpp)
+add_executable(pomocpp main.cpp pomo.cpp)
