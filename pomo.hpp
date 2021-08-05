@@ -2,7 +2,6 @@
 #define POMO_HPP
 
 #include <string>
-#include <filesystem>
 
 class Pomodoro
 {
@@ -11,9 +10,9 @@ private:
 	double time = 0.0;
 	double break_time = 0.0;
 	int count = 0;
-	
+
 public:
-    Pomodoro();
+	Pomodoro(std::string name, double time, double break_time, int count);
 
 	std::string get_name();
 	void set_name(std::string new_name);
@@ -28,4 +27,4 @@ public:
 	void set_count(int new_count);
 };
 
-#endif 
+#endif
