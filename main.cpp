@@ -1,8 +1,8 @@
-#include <iostream>
 #include <chrono>
 #include <vector>
 #include <memory>
 #include "pomo.hpp"
+#include "database.hpp"
 
 void usage(std::string program_name)
 {
@@ -23,10 +23,13 @@ int main(int argc, char *argv[])
 	}
 
 	if (argc >= 2) {
+		std::unique_ptr<Database> db = std::make_unique<Database>();
 		if (args[1] == "start") {
 			
 		} else if (args[1] == "create") {
-			
+			if (argc >= 6) {
+				std::unique_ptr<Pomodoro> pomo = std::make_unique<Pomodoro>(args[2], std::stod(args[3]), std::stod(args[4]), std::stoi(args[5]));
+			}
 		} else if (args[1] == "del") {
 			
 		} else if (args[1] == "list") {
