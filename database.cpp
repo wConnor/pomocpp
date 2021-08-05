@@ -19,5 +19,23 @@ Database::Database() {
 		std::cout << "Created pomocpp database file at " << db_path << '.' << std::endl;
 		db_file.close();
 	}
+}
 
+void Database::write_to_db(Pomodoro &pomo)
+{
+	try {
+		std::ofstream db_file(db_path, std::ios_base::app);
+
+		db_file << pomo.get_name() << '\\'
+				<< pomo.get_time() << '\\'
+				<< pomo.get_break_time() << '\\'
+				<< pomo.get_count() << std::endl;
+
+		db_file.close();
+		std::cout << "Successfully created new pomodoro \'" << pomo.get_name() << "'." << std::endl;
+
+	} catch (std::exception &e) {
+		std::cerr << "Failed to write to " << db_path << '.';
+		std::cerr << e.what() << std::endl;
+	}
 }

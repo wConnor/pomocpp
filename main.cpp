@@ -1,7 +1,6 @@
 #include <chrono>
 #include <vector>
 #include <memory>
-#include "pomo.hpp"
 #include "database.hpp"
 
 void usage(std::string program_name)
@@ -28,7 +27,15 @@ int main(int argc, char *argv[])
 			
 		} else if (args[1] == "create") {
 			if (argc >= 6) {
-				std::unique_ptr<Pomodoro> pomo = std::make_unique<Pomodoro>(args[2], std::stod(args[3]), std::stod(args[4]), std::stoi(args[5]));
+				try {
+					std::unique_ptr<Pomodoro> pomo = std::make_unique<Pomodoro>(args[2], std::stod(args[3]), std::stod(args[4]), std::stoi(args[5]));
+					db->write_to_db(*pomo);
+				} catch (std::exception &e) {
+					std::cerr << "ERROR: Invalid type specified." << std::endl;
+					std::cerr << "\t<time>, <break_time>, and <count> must be numbers." << std::endl;
+				}
+			} else {
+				std::cout << "Usage: " << args[0] << " create <name> <time> <break_time> <count>" << std::endl;
 			}
 		} else if (args[1] == "del") {
 			

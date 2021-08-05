@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include "pomo.hpp"
 
 class Database
 {
@@ -12,7 +13,7 @@ private:
 	
 public:
     Database();
-
+	void write_to_db(Pomodoro &pomo);
 };
 
 #endif
