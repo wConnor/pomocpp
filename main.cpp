@@ -1,5 +1,4 @@
 #include <chrono>
-#include <vector>
 #include <memory>
 #include "database.hpp"
 
@@ -22,14 +21,14 @@ int main(int argc, char *argv[])
 	}
 
 	if (argc >= 2) {
-		std::unique_ptr<Database> db = std::make_unique<Database>();
+		Database db;
 		if (args[1] == "start") {
-			
+
 		} else if (args[1] == "create") {
 			if (argc >= 6) {
 				try {
 					std::unique_ptr<Pomodoro> pomo = std::make_unique<Pomodoro>(args[2], std::stod(args[3]), std::stod(args[4]), std::stoi(args[5]));
-					db->write_to_db(*pomo);
+					db.write_to_db(*pomo);
 				} catch (std::exception &e) {
 					std::cerr << "ERROR: Invalid type specified." << std::endl;
 					std::cerr << "\t<time>, <break_time>, and <count> must be numbers." << std::endl;
@@ -38,9 +37,17 @@ int main(int argc, char *argv[])
 				std::cout << "Usage: " << args[0] << " create <name> <time> <break_time> <count>" << std::endl;
 			}
 		} else if (args[1] == "del") {
-			
+
 		} else if (args[1] == "list") {
-			
+			std::vector<Pomodoro> pomos_list = db.get_pomos();
+
+			for (auto &c : pomos_list) {
+				std::cout << c.get_id() << ": "
+						  << '[' << c.get_name() << "] - "
+						  << "[T" << c.get_time() << "m] - "
+						  << "[B" << c.get_break_time() << "m] - "
+						  << '[' << c.get_count() << "x]" << std::endl;
+			}
 		} else {
 			usage(args[0]);
 		}
@@ -48,6 +55,6 @@ int main(int argc, char *argv[])
 	} else {
 		usage(args[0]);
 	}
-	
-    return 0;
+
+	return 0;
 }
