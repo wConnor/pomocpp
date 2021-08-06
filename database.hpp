@@ -5,6 +5,8 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <memory>
+#include <sqlite3.h>
 #include "pomo.hpp"
 
 class Database

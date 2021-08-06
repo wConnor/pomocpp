@@ -15,6 +15,7 @@ private:
 public:
 	Pomodoro();
 	Pomodoro(std::string name, double time, double break_time, int count);
+	Pomodoro(int id, std::string name, double time, double break_time, int count);
 
 	int get_id();
 	void set_id(int new_id);
