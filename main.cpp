@@ -60,7 +60,6 @@ int main(int argc, char *argv[])
 		} else {
 			usage(args[0]);
 		}
-
 	} else {
 		usage(args[0]);
 	}

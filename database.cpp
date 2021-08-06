@@ -18,7 +18,6 @@ Database::Database() {
 		sqlite3 *db;
 		int res = sqlite3_open(db_path.c_str(), &db);
 		std::string sql_query;
-		char *err_msg;
 
 		if (res) {
 			std::cerr << "Failed to create database at " << db_path << '.' << std::endl;
@@ -31,11 +30,10 @@ Database::Database() {
 				"break_time DOUBLE NOT NULL, " \
 				"count INTEGER NOT NULL);";
 
-			res = sqlite3_exec(db, sql_query.c_str(), nullptr, 0, &err_msg);
+			res = sqlite3_exec(db, sql_query.c_str(), nullptr, 0, nullptr);
 
 			if (res != SQLITE_OK) {
-				std::cerr << "SQL error: " << err_msg;
-				sqlite3_free(err_msg);
+				std::cerr << "SQL error: " << sqlite3_errmsg(db) << std::endl;
 			} else {
 				std::cout << "Created pomocpp database at " << db_path << '.' << std::endl;
 			}
@@ -48,18 +46,16 @@ void Database::write_to_db(Pomodoro &pomo)
 {
 	sqlite3 *db;
 	int res = sqlite3_open(db_path.c_str(), &db);
-	char *err_msg;
 
 	if (res) {
 		std::cout << "Failed to open database: " << sqlite3_errmsg(db) << std::endl;
 	} else {
 		std::string sql_query = "INSERT INTO POMOCPP (NAME, TIME, BREAK_TIME, COUNT) "	\
 			"VALUES ('" + pomo.get_name() + "', " + std::to_string(pomo.get_time()) + ", " + std::to_string(pomo.get_break_time()) + ", " + std::to_string(pomo.get_count()) + ");";
-		res = sqlite3_exec(db, sql_query.c_str(), nullptr, 0, &err_msg);
+		res = sqlite3_exec(db, sql_query.c_str(), nullptr, 0, nullptr);
 
 		if (res != SQLITE_OK) {
-			std::cerr << "SQL error: " << err_msg;
-			sqlite3_free(err_msg);
+			std::cerr << "SQL error: " << sqlite3_errmsg(db);
 		} else {
 			std::cout << "Successfully created new pomodoro '" << pomo.get_name() << "'." << std::endl;
 		}
@@ -68,7 +64,6 @@ void Database::write_to_db(Pomodoro &pomo)
 
 std::vector<Pomodoro> Database::get_pomos()
 {
-
 	std::vector<Pomodoro> pomos;
 	sqlite3 *db;
 	int res = sqlite3_open(db_path.c_str(), &db);
@@ -103,6 +98,20 @@ std::vector<Pomodoro> Database::get_pomos()
 
 void Database::delete_from_db(const int &id)
 {
-	std::cout << id << std::endl;
-	std::cerr << "NOT IMPLEMENTED.";
+	sqlite3 *db;
+	int res = sqlite3_open(db_path.c_str(), &db);
+
+	if (res) {
+		std::cerr << "Failed to open database at " << db_path << '.';
+	} else {
+		std::string sql_query = "DELETE FROM POMOCPP WHERE ID = " + std::to_string(id) + ";";
+		res = sqlite3_exec(db, sql_query.c_str(), nullptr, 0, nullptr);
+
+		if (res) {
+			std::cerr << "Failed to remove pomo entry #" << id << '.' << std::endl;
+			std::cerr << sqlite3_errmsg(db) << std::endl;
+		} else {
+			std::cout << "Deleted pomo entry #" << id << '.' << std::endl;
+		}
+	}
 }
