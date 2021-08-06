@@ -53,7 +53,6 @@ std::vector<Pomodoro> Database::get_pomos()
 
 	while (std::getline(db_file, line)) {
 		all_lines.push_back(line);
-
 	}
 
 	std::vector<Pomodoro> pomos;
@@ -81,4 +80,10 @@ std::vector<Pomodoro> Database::get_pomos()
 	}
 
 	return pomos;
+}
+
+void Database::delete_from_db(const int &id)
+{
+	std::cout << id << std::endl;
+	std::cerr << "NOT IMPLEMENTED.";
 }

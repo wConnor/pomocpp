@@ -15,6 +15,7 @@ private:
 public:
     Database();
 	void write_to_db(Pomodoro &pomo);
+	void delete_from_db(const int &id);
 	std::vector<Pomodoro> get_pomos();
 };
 

@@ -9,7 +9,7 @@ void usage(std::string program_name)
 	std::cout << "Available options:" << std::endl;
 	std::cout << "\tstart <name> - starts the given pomodoro session" << std::endl;
 	std::cout << "\tcreate <name> <time> <break_time> <count> - creates a new pomodoro" << std::endl;
-	std::cout << "\tdel <name> - deletes the specified pomodoro" << std::endl;
+	std::cout << "\tdel <id> - deletes the specified pomodoro" << std::endl;
 	std::cout << "\tlist - lists created pomodoros" << std::endl;
 }
 
@@ -37,6 +37,15 @@ int main(int argc, char *argv[])
 				std::cout << "Usage: " << args[0] << " create <name> <time> <break_time> <count>" << std::endl;
 			}
 		} else if (args[1] == "del") {
+			if (argc >= 3) {
+				try {
+					db.delete_from_db(std::stoi(args[2]));
+				} catch (std::exception &e) {
+					std::cerr << "ERROR: Invalid ID." << std::endl;
+				}
+			} else {
+				std::cout << "Usage: " << args[0] << " del <id>" << std::endl;
+			}
 
 		} else if (args[1] == "list") {
 			std::vector<Pomodoro> pomos_list = db.get_pomos();
