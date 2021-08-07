@@ -13,12 +13,13 @@ class Database
 {
 private:
 	std::filesystem::path db_path;
-	
+
 public:
-    Database();
+	Database();
 	void write_to_db(Pomodoro &pomo);
 	void delete_from_db(const int &id);
-	std::vector<Pomodoro> get_pomos();
+	Pomodoro get_pomo(const int &id);
+	std::vector<Pomodoro> get_all_pomos();
 };
 
 #endif

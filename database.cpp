@@ -62,7 +62,40 @@ void Database::write_to_db(Pomodoro &pomo)
 	}
 }
 
-std::vector<Pomodoro> Database::get_pomos()
+Pomodoro Database::get_pomo(const int &id)
+{
+	Pomodoro pomo;
+	sqlite3 *db;
+	int res = sqlite3_open(db_path.c_str(), &db);
+
+	if (res) {
+		std::cerr << "Failed to open database at " << db_path << '.';
+	} else {
+		sqlite3_stmt *stmt;
+
+		std::string sql_query = "SELECT * FROM POMOCPP WHERE ID = " + std::to_string(id) + " LIMIT 1;";
+		res = sqlite3_prepare_v2(db, sql_query.c_str(), -1, &stmt, nullptr);
+
+		if (res != SQLITE_OK) {
+			std::cerr << "SQL error: " << sqlite3_errmsg(db);
+		} else {
+			while ((res = sqlite3_step(stmt)) == SQLITE_ROW) {
+				pomo.set_id(sqlite3_column_int(stmt, 0));
+				pomo.set_name(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
+				pomo.set_time(sqlite3_column_double(stmt, 2));
+				pomo.set_break_time(sqlite3_column_double(stmt, 3));
+				pomo.set_count(sqlite3_column_int(stmt, 4));
+			}
+			if (res != SQLITE_DONE) {
+				std::cerr << "Failed to get pomo # " << id << ": " << sqlite3_errmsg(db) << std::endl;
+			}
+		}
+	}
+
+	return pomo;
+}
+
+std::vector<Pomodoro> Database::get_all_pomos()
 {
 	std::vector<Pomodoro> pomos;
 	sqlite3 *db;
@@ -88,7 +121,6 @@ std::vector<Pomodoro> Database::get_pomos()
 			}
 			if (res != SQLITE_DONE) {
 				std::cerr << "Failed to get pomos: " << sqlite3_errmsg(db) << std::endl;
-
 			}
 		}
 	}
