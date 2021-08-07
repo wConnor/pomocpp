@@ -39,24 +39,51 @@ int main(int argc, char *argv[])
 					if (pomo.get_name() != "") {
 						char choice = 'c';
 						int time_remaining = pomo.get_time() * 60;
+						int break_time_remaining = pomo.get_break_time() * 60;
+						int current_count = 0;
+
 						int *time_ptr = &time_remaining;
+						int *break_time_ptr = &break_time_remaining;
+						int *current_count_ptr = &current_count;
+						Pomodoro *pomo_ptr = &pomo;
 						initscr();
 						noecho();
-						std::thread char_poll([&choice, time_ptr](){
+						std::thread char_poll([&choice, time_ptr, current_count_ptr, break_time_ptr, pomo_ptr](){
 							choice = getch();
 							std::this_thread::sleep_for(std::chrono::seconds(1));
 							if (choice == 'q') {
-								*time_ptr = 0;
+								*time_ptr = -1;
+								*break_time_ptr = -1;
+								*current_count_ptr = pomo_ptr->get_count() + 1;
 							}
 						});
 						refresh();
-						printw("*- %s: Time %f m, Break %f m, %i Times -*\n", pomo.get_name().c_str(), pomo.get_time(), pomo.get_break_time(), pomo.get_count());
+						printw("*- %s: Time %f m, Break %f m, %i Times -*", pomo.get_name().c_str(), pomo.get_time(), pomo.get_break_time(), pomo.get_count());
 						refresh();
 
-						for (; time_remaining >= 0; --time_remaining) {
-							printw("\rTime Remaining: %02d:%02d", time_remaining / 60, time_remaining % 60);
+						for (; current_count <= pomo.get_count(); ++current_count) {
+							printw("\n");
+							printw("=== Pomodoro #%i ===\n", current_count + 1);
 							refresh();
-							std::this_thread::sleep_for(std::chrono::seconds(1));
+
+							time_remaining = pomo.get_time() * 60;
+							break_time_remaining = pomo.get_break_time() * 60;
+							/* running pomodoro timer */
+							for (; time_remaining >= 0; --time_remaining) {
+								printw("\rTime Remaining: %02d:%02d", time_remaining / 60, time_remaining % 60);
+								refresh();
+								std::this_thread::sleep_for(std::chrono::seconds(1));
+							}
+
+							printw("\n");
+							refresh();
+
+							/* break time timer */
+							for (; break_time_remaining >= 0; --break_time_remaining) {
+								printw("\rBreak Time Remaining: %02d:%02d", break_time_remaining / 60, break_time_remaining % 60);
+								refresh();
+								std::this_thread::sleep_for(std::chrono::seconds(1));
+							}
 						}
 						char_poll.join();
 					} else {
@@ -77,8 +104,8 @@ int main(int argc, char *argv[])
 					   specified arguments and writes it to the
 					   sqlite database. if the user has input an invalid type as one of the arguments,
 					   an exception is thrown. */
-					std::unique_ptr<Pomodoro> pomo = std::make_unique<Pomodoro>(args[2], std::stod(args[3]), std::stod(args[4]), std::stoi(args[5]));
-					db.write_to_db(*pomo);
+					Pomodoro pomo(args[2], std::stod(args[3]), std::stod(args[4]), std::stoi(args[5]));
+					db.write_to_db(pomo);
 				} catch (std::exception &e) {
 					std::cerr << "ERROR: Invalid type specified." << std::endl;
 					std::cerr << "\t<time>, <break_time>, and <count> must be numbers." << std::endl;
