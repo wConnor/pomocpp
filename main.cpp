@@ -2,6 +2,7 @@
 #include <thread>
 #include <iomanip>
 #include <ncurses.h>
+#include <stdlib.h>
 #include "database.hpp"
 
 void usage(std::string program_name)
@@ -38,42 +39,49 @@ int main(int argc, char *argv[])
 					   retrieved; name should not be empty. */
 					if (pomo.get_name() != "") {
 						char choice = 'c';
+						char cont = 'x';
 						int time_remaining = pomo.get_time() * 60;
 						int break_time_remaining = pomo.get_break_time() * 60;
 						int current_count = 0;
+						std::string notification = "";
+						bool quit_flag = false;
 
-						int *time_ptr = &time_remaining;
-						int *break_time_ptr = &break_time_remaining;
-						int *current_count_ptr = &current_count;
-						Pomodoro *pomo_ptr = &pomo;
 						initscr();
 						noecho();
-						std::thread char_poll([&choice, time_ptr, current_count_ptr, break_time_ptr, pomo_ptr](){
+						curs_set(0);
+
+						std::thread char_poll([&choice, &time_remaining, &current_count, &break_time_remaining, &pomo, &quit_flag](){
 							choice = getch();
-							std::this_thread::sleep_for(std::chrono::seconds(1));
+							//							std::this_thread::sleep_for(std::chrono::seconds(1));
 							if (choice == 'q') {
-								*time_ptr = -1;
-								*break_time_ptr = -1;
-								*current_count_ptr = pomo_ptr->get_count() + 1;
+								time_remaining = -1;
+								break_time_remaining = -1;
+								current_count = pomo.get_count() + 1;
+								quit_flag = true;
 							}
 						});
+
 						refresh();
 						printw("*- %s: Time %f m, Break %f m, %i Times -*", pomo.get_name().c_str(), pomo.get_time(), pomo.get_break_time(), pomo.get_count());
 						refresh();
 
-						for (; current_count <= pomo.get_count(); ++current_count) {
+						for (; current_count < pomo.get_count(); ++current_count) {
 							printw("\n");
 							printw("=== Pomodoro #%i ===\n", current_count + 1);
 							refresh();
 
 							time_remaining = pomo.get_time() * 60;
 							break_time_remaining = pomo.get_break_time() * 60;
+
 							/* running pomodoro timer */
 							for (; time_remaining >= 0; --time_remaining) {
 								printw("\rTime Remaining: %02d:%02d", time_remaining / 60, time_remaining % 60);
 								refresh();
 								std::this_thread::sleep_for(std::chrono::seconds(1));
 							}
+
+							notification = "notify-send \"Pomdoro #" + std::to_string(current_count + 1) + " finished.\nBreak time for " + std::to_string(pomo.get_break_time()) + " minutes.\"";
+							system(notification.c_str());
 
 							printw("\n");
 							refresh();
@@ -84,6 +92,14 @@ int main(int argc, char *argv[])
 								refresh();
 								std::this_thread::sleep_for(std::chrono::seconds(1));
 							}
+
+							notification = "notify-send \"Pomdoro #" + std::to_string(current_count + 1) + " break time over.\nPress [c] to continue, or [q] to quit.\"";
+							system(notification.c_str());
+
+							cont = getch();
+							if (cont == 'q') {
+								current_count = pomo.get_count() + 1;
+							} 
 						}
 						char_poll.join();
 					} else {
