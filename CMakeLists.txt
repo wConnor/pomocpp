@@ -1,12 +1,14 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 2.6)
 set(CMAKE_CXX_FLAGS "-Werror -Wall -Wextra -O3")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 project(pomocpp)
 add_executable(pomocpp main.cpp pomo.cpp database.cpp)
 
-find_package (SQLite3)
-include_directories(${SQLite3_INCLUDE_DIRS})
-target_link_libraries(pomocpp ${SQLite3_LIBRARIES})
-
+find_package(Threads REQUIRED)
+find_package(SQLite3 REQUIRED)
+find_package(Curses REQUIRED)
+include_directories(${SQLite3_INCLUDE_DIRS} ${CURSES_INCLUDE_DIRS})
+target_link_libraries(pomocpp PRIVATE ${SQLite3_LIBRARIES} ${CURSES_LIBRARIES} Threads::Threads)
