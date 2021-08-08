@@ -38,8 +38,7 @@ int main(int argc, char *argv[])
 					/* checks whether or not a pomo has actually been
 					   retrieved; name should not be empty. */
 					if (pomo.get_name() != "") {
-						char choice = 'c';
-						char cont = 'x';
+						char choice = 'z';
 						int time_remaining = pomo.get_time() * 60;
 						int break_time_remaining = pomo.get_break_time() * 60;
 						int current_count = 0;
@@ -48,16 +47,9 @@ int main(int argc, char *argv[])
 
 						initscr();
 						noecho();
-						curs_set(0);
+						timeout(1000);
 
-						std::thread char_poll([&choice, &time_remaining, &break_time_remaining, &quit_flag](){
-							choice = getch();
-							if (choice == 'q') {
-								time_remaining = -1;
-								break_time_remaining = -1;
-								quit_flag = true;
-							}
-						});
+						curs_set(0);
 
 						refresh();
 						printw("*- %s: Time %f m, Break %f m, %i Times -*", pomo.get_name().c_str(), pomo.get_time(), pomo.get_break_time(), pomo.get_count());
@@ -75,7 +67,9 @@ int main(int argc, char *argv[])
 							for (; time_remaining >= 0 && !quit_flag; --time_remaining) {
 								printw("\rTime Remaining: %02d:%02d", time_remaining / 60, time_remaining % 60);
 								refresh();
-								std::this_thread::sleep_for(std::chrono::seconds(1));
+								choice = getch();
+								if (choice == 'q')
+									quit_flag = true;
 							}
 
 							if (!quit_flag) {
@@ -89,21 +83,26 @@ int main(int argc, char *argv[])
 							for (; break_time_remaining >= 0 && !quit_flag; --break_time_remaining) {
 								printw("\rBreak Time Remaining: %02d:%02d", break_time_remaining / 60, break_time_remaining % 60);
 								refresh();
-								std::this_thread::sleep_for(std::chrono::seconds(1));
+
+								choice = getch();
+								if (choice == 'q')
+									quit_flag = true;
 							}
 
 							if (!quit_flag) {
 								notification = "notify-send \"Pomdoro #" + std::to_string(current_count + 1) + " break time over.\nPress [c] to continue, or [q] to quit.\"";
 								system(notification.c_str());
 
-								cont = getch();
-
-								if (cont == 'q') {
-									quit_flag = true;
+								choice = getch();
+								while (!((choice == 'q') || (choice == 'c'))) {
+									choice = getch();
 								}
+
+								if (choice == 'q')
+									quit_flag = true;
+
 							}
 						}
-						char_poll.join();
 					} else {
 						std::cerr << "Invalid ID specified." << std::endl;
 					}
