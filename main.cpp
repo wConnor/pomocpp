@@ -42,22 +42,27 @@ int main(int argc, char *argv[])
 						int time_remaining = pomo.get_time() * 60;
 						int break_time_remaining = pomo.get_break_time() * 60;
 						int current_count = 0;
-						std::string notification = "";
 						bool quit_flag = false;
+						std::string notification = "";
 
+						/* ncurses options */
 						initscr();
 						noecho();
 						timeout(1000);
-
 						curs_set(0);
 
 						refresh();
-						printw("*- %s: Time %f m, Break %f m, %i Times -*", pomo.get_name().c_str(), pomo.get_time(), pomo.get_break_time(), pomo.get_count());
+						printw("*- %s: Time %f m, Break %f m, %i Times -*\n", pomo.get_name().c_str(), pomo.get_time(), pomo.get_break_time(), pomo.get_count());
 						refresh();
 
 						for (; current_count < pomo.get_count() && !quit_flag; ++current_count) {
-							printw("\n");
-							printw("=== Pomodoro #%i ===\n", current_count + 1);
+							auto now = std::chrono::system_clock::now();
+							auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+							std::stringstream ss;
+							ss << std::put_time(std::localtime(&in_time_t), "%F %R");
+
+							printw("\r=== Pomodoro #%i: %s ===\n", current_count + 1, ss.str().c_str());
 							refresh();
 
 							time_remaining = pomo.get_time() * 60;
@@ -76,6 +81,7 @@ int main(int argc, char *argv[])
 								notification = "notify-send \"Pomdoro #" + std::to_string(current_count + 1) + " finished.\nBreak time for " + std::to_string(pomo.get_break_time()) + " minutes.\"";
 								system(notification.c_str());
 							}
+
 							printw("\n");
 							refresh();
 
@@ -89,9 +95,11 @@ int main(int argc, char *argv[])
 									quit_flag = true;
 							}
 
-							if (!quit_flag) {
+							if (!quit_flag && current_count < pomo.get_count() - 1) {
 								notification = "notify-send \"Pomdoro #" + std::to_string(current_count + 1) + " break time over.\nPress [c] to continue, or [q] to quit.\"";
 								system(notification.c_str());
+								printw("\nPress [c] to continue, or [q] to quit.");
+								refresh();
 
 								choice = getch();
 								while (!((choice == 'q') || (choice == 'c'))) {
@@ -100,9 +108,12 @@ int main(int argc, char *argv[])
 
 								if (choice == 'q')
 									quit_flag = true;
-
 							}
 						}
+						printw("\nSession complete.\n");
+						refresh();
+						getch();
+						endwin();
 					} else {
 						std::cerr << "Invalid ID specified." << std::endl;
 					}
@@ -160,8 +171,6 @@ int main(int argc, char *argv[])
 	} else {
 		usage(args[0]);
 	}
-
-	endwin();
 
 	return 0;
 }
