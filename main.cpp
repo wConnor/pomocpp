@@ -10,7 +10,7 @@ void usage(std::string program_name)
 	std::cout << "pomocpp - a basic pomodoro timer written in cpp." << std::endl;
 	std::cout << "Usage: " << program_name << " <options>" << std::endl;
 	std::cout << "Available options:" << std::endl;
-	std::cout << "\tstart <name> - starts the given pomodoro session" << std::endl;
+	std::cout << "\tstart <id> - starts the given pomodoro session" << std::endl;
 	std::cout << "\tcreate <name> <time> <break_time> <count> - creates a new pomodoro" << std::endl;
 	std::cout << "\tdel <id> - deletes the specified pomodoro" << std::endl;
 	std::cout << "\tlist - lists created pomodoros" << std::endl;
@@ -73,8 +73,8 @@ int main(int argc, char *argv[])
 								printw("\rTime Remaining: %02d:%02d", time_remaining / 60, time_remaining % 60);
 								refresh();
 								choice = getch();
-								if (choice == 'q')
-									quit_flag = true;
+
+								quit_flag = (choice == 'q') ? true : false;
 							}
 
 							if (!quit_flag) {
@@ -91,8 +91,7 @@ int main(int argc, char *argv[])
 								refresh();
 
 								choice = getch();
-								if (choice == 'q')
-									quit_flag = true;
+								quit_flag = (choice == 'q') ? true : false;
 							}
 
 							if (!quit_flag && current_count < pomo.get_count() - 1) {
@@ -101,13 +100,11 @@ int main(int argc, char *argv[])
 								printw("\nPress [c] to continue, or [q] to quit.");
 								refresh();
 
-								choice = getch();
-								while (!((choice == 'q') || (choice == 'c'))) {
+								do {
 									choice = getch();
-								}
+								} while (!((choice == 'q') || (choice == 'c')));
 
-								if (choice == 'q')
-									quit_flag = true;
+								quit_flag = (choice == 'q') ? true : false;
 							}
 						}
 						printw("\nSession complete.\n");
