@@ -10,10 +10,10 @@ void usage(std::string program_name)
 	std::cout << "pomocpp - a basic pomodoro timer written in cpp." << std::endl;
 	std::cout << "Usage: " << program_name << " <options>" << std::endl;
 	std::cout << "Available options:" << std::endl;
-	std::cout << "\tstart <id> - starts the given pomodoro session" << std::endl;
-	std::cout << "\tcreate <name> <time> <break_time> <count> - creates a new pomodoro" << std::endl;
-	std::cout << "\tdel <id> - deletes the specified pomodoro" << std::endl;
-	std::cout << "\tlist - lists created pomodoros" << std::endl;
+	std::cout << "\ts, start <id> - starts the given pomodoro session" << std::endl;
+	std::cout << "\tc, create <name> <time> <break_time> <count> - creates a new pomodoro" << std::endl;
+	std::cout << "\td, del <id> - deletes the specified pomodoro" << std::endl;
+	std::cout << "\tl, list - lists created pomodoros" << std::endl;
 }
 
 int main(int argc, char *argv[])
@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 	   when executing the program. */
 	if (argc >= 2) {
 		Database db;
-		if (args[1] == "start") {
+		if (args[1] == "start" || args[1] == "s") {
 			if (argc >= 3) {
 				/* try-catch statement necessary due to use of std::stoi */
 				try {
@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
 				std::cout << "Usage: " << args[0] << " start <id>" << std::endl;
 			}
 
-		} else if (args[1] == "create") {
+		} else if (args[1] == "create" || args[1] == "c") {
 			if (argc >= 6) {
 				try {
 					/* creates a Pomodoro object using the
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
 				std::cout << "Usage: " << args[0] << " create <name> <time> <break_time> <count>" << std::endl;
 			}
 
-		} else if (args[1] == "del") {
+		} else if (args[1] == "del" || args[1] == "d") {
 			if (argc >= 3) {
 				try {
 					db.delete_from_db(std::stoi(args[2]));
@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
 				std::cout << "Usage: " << args[0] << " del <id>" << std::endl;
 			}
 
-		} else if (args[1] == "list") {
+		} else if (args[1] == "list" || args[1] == "l") {
 			std::vector<Pomodoro> pomos_list = db.get_all_pomos();
 
 			for (auto &c : pomos_list) {
