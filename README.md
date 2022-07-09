@@ -49,4 +49,5 @@ All saved pomodoros can be inspected using SQLite3 on the database file at ~/.co
 
 ## Screenshots
 ![Pomodoro Session](/images/pomocpp-session.png)
+
 Example of a pomodoro session taking place. After the time has elapsed, a notification is sent and the break time is started. Once the break time has concluded, another notification is sent and the user is given the option to either continue or quit, using the c and q keys respectively.
